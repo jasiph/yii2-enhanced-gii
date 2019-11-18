@@ -3,7 +3,6 @@
     "description": "Generate Relational (hasMany, hasOne, belongsTo, & nested) Models & CRUD.",
     "keywords": ["relation", "gii", "yii2", "yii", "enhanced"],
     "license": "BSD-3-Clause",
-    "minimum-stablility":"dev",
     "type": "yii2-extension",
     "authors": [
         {
@@ -15,6 +14,12 @@
             "email": "jiwanndaru@gmail.com"
         }
     ],
+    "repositories": [  
+        {  
+            "type": "vcs",  
+            "url": "https://github.com/jasiph/yii2-enhanced-gii.git"  
+        }  
+    ],  
     "require": {
         "yiisoft/yii2": "*",
         "mootensai/yii2-uuid-behavior": "*",
@@ -36,3 +41,6 @@
         "bootstrap": "mootensai\\enhancedgii\\Bootstrap"
     }
 }
+
+
+
