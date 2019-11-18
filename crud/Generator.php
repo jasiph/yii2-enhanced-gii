@@ -1,4 +1,5 @@
 <?php
+
 namespace mootensai\enhancedgii\crud;
 
 use Yii;
@@ -88,22 +89,24 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
             [['tableName', 'baseControllerClass', 'indexWidgetType', 'db'], 'required'],
             [['tableName'], 'match', 'pattern' => '/^(\w+\.)?([\w\*]+)$/', 'message' => 'Only word characters, and optionally an asterisk and/or a dot are allowed.'],
             [['tableName'], 'validateTableName'],
-//            [['searchModelClass'], 'compare', 'compareAttribute' => 'modelClass', 'operator' => '!==', 'message' => 'Search Model Class must not be equal to Model Class.'],
+            //            [['searchModelClass'], 'compare', 'compareAttribute' => 'modelClass', 'operator' => '!==', 'message' => 'Search Model Class must not be equal to Model Class.'],
             [['modelClass', 'baseControllerClass', 'searchModelClass', 'db', 'queryClass'], 'match', 'pattern' => '/^[\w\\\\]*$/', 'message' => 'Only word characters and backslashes are allowed.'],
-//            [['modelClass'], 'validateClass', 'params' => ['extends' => BaseActiveRecord::className()]],
+            //            [['modelClass'], 'validateClass', 'params' => ['extends' => BaseActiveRecord::className()]],
             [['baseControllerClass'], 'validateClass', 'params' => ['extends' => Controller::className()]],
             [['db'], 'validateDb'],
             [['controllerClass'], 'match', 'pattern' => '/Controller$/', 'message' => 'Controller class name must be suffixed with "Controller".'],
             [['controllerClass'], 'match', 'pattern' => '/(^|\\\\)[A-Z][^\\\\]+Controller$/', 'message' => 'Controller class name must start with an uppercase letter.'],
-//            [['searchModelClass'], 'validateNewClass'],
+            //            [['searchModelClass'], 'validateNewClass'],
             [['indexWidgetType'], 'in', 'range' => ['grid', 'list']],
-//            [['modelClass'], 'validateModelClass'],
+            //            [['modelClass'], 'validateModelClass'],
             [['enableI18N', 'generateRelations', 'generateSearchModel', 'pluralize', 'expandable', 'cancelable', 'pdf', 'loggedUserOnly'], 'boolean'],
             [['messageCategory'], 'validateMessageCategory', 'skipOnEmpty' => false],
-            [['viewPath', 'skippedRelations', 'skippedColumns',
+            [[
+                'viewPath', 'skippedRelations', 'skippedColumns',
                 'controllerClass', 'blameableValue', 'nameAttribute',
                 'hiddenColumns', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy',
-                'UUIDColumn', 'saveAsNew'], 'safe'],
+                'UUIDColumn', 'saveAsNew'
+            ], 'safe'],
         ]);
     }
 
@@ -262,7 +265,8 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
             'UUIDColumn',
             'baseControllerClass',
             'indexWidgetType',
-            'viewPath']);
+            'viewPath'
+        ]);
     }
 
     /**
@@ -297,11 +301,11 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                 $modelClassName = (!empty($this->modelClass)) ? $this->modelClass : Inflector::id2camel($tableName, '_');
                 $controllerClassName = (!empty($this->controllerClass)) ? $this->controllerClass : $modelClassName . 'Controller';
             }
-//            $queryClassName = ($this->generateQuery) ? $this->generateQueryClassName($modelClassName) : false;
+            //            $queryClassName = ($this->generateQuery) ? $this->generateQueryClassName($modelClassName) : false;
             $tableSchema = $db->getTableSchema($tableName);
             $this->modelClass = "{$this->nsModel}\\{$modelClassName}";
             $this->tableSchema = $tableSchema;
-//            $this->relations = isset($relations[$tableName]) ? $relations[$tableName] : [];
+            //            $this->relations = isset($relations[$tableName]) ? $relations[$tableName] : [];
             $this->controllerClass = $this->nsController . '\\' . $controllerClassName;
             $isTree = !array_diff(self::getTreeColumns(), $tableSchema->columnNames);
 
@@ -318,8 +322,10 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                 }
                 $this->searchModelClass = $this->nsSearchModel . '\\' . $searchModelClassName;
                 $searchModel = Yii::getAlias('@' . str_replace('\\', '/', ltrim($this->searchModelClass, '\\') . '.php'));
-                $files[] = new CodeFile($searchModel, $this->render('search.php',
-                    ['relations' => isset($relations[$tableName]) ? $relations[$tableName] : []]));
+                $files[] = new CodeFile($searchModel, $this->render(
+                    'search.php',
+                    ['relations' => isset($relations[$tableName]) ? $relations[$tableName] : []]
+                ));
             }
 
             //controller
@@ -329,8 +335,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                     $this->render('controllerNested.php', [
                         'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                     ])
-                    :
-                    $this->render('controller.php', [
+                    : $this->render('controller.php', [
                         'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                     ])
             );
@@ -339,29 +344,30 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
             $viewPath = $this->getViewPath();
             $templatePath = $this->getTemplatePath() . '/views';
             foreach (scandir($templatePath) as $file) {
-//                if($file === '_formNested.php')
-//                    echo  $file;
+                //                if($file === '_formNested.php')
+                //                    echo  $file;
                 if (empty($this->searchModelClass) && $file === '_search.php') {
                     continue;
                 }
-                if ($file === '_formrefone.php' || $file === '_formrefmany.php' || $file === '_datarefone.php'
+                if (
+                    $file === '_formrefone.php' || $file === '_formrefmany.php' || $file === '_datarefone.php'
                     || $file === '_datarefmany.php' || $file === '_expand.php' || $file === '_detail.php'
-                    || $file === '_data.php' || $file === 'saveAsNew.php' || $file === '_pdf.php') {
+                    || $file === '_data.php' || $file === 'saveAsNew.php' || $file === '_pdf.php'
+                ) {
                     continue;
                 }
-                if($this->indexWidgetType != 'list' && $file === '_index.php') {
+                if ($this->indexWidgetType != 'list' && $file === '_index.php') {
                     continue;
                 }
-                if($isTree && ($file === 'index.php' || $file === 'view.php' || $file === '_form.php'
-                    || $file === 'create.php' || $file === 'update.php'
-                    )){
+                if ($isTree && ($file === 'index.php' || $file === 'view.php' || $file === '_form.php'
+                    || $file === 'create.php' || $file === 'update.php')) {
                     continue;
                 }
-                if(!$isTree && ($file === 'indexNested.php' || $file === '_formNested.php')){
+                if (!$isTree && ($file === 'indexNested.php' || $file === '_formNested.php')) {
                     continue;
                 }
                 if (is_file($templatePath . '/' . $file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
-                    $fileName = ($isTree) ? str_replace('Nested','',$file) : $file;
+                    $fileName = ($isTree) ? str_replace('Nested', '', $file) : $file;
                     $files[] = new CodeFile("$viewPath/$fileName", $this->render("views/$file", [
                         'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                         'isTree' => $isTree
@@ -373,19 +379,19 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                     'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                 ]));
             }
-            
+
             if ($this->pdf) {
                 $files[] = new CodeFile("$viewPath/_pdf.php", $this->render("views/_pdf.php", [
                     'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                 ]));
             }
-            
-            if($this->saveAsNew){
+
+            if ($this->saveAsNew) {
                 $files[] = new CodeFile("$viewPath/saveAsNew.php", $this->render("views/saveAsNew.php", [
                     'relations' => isset($relations[$tableName]) ? $relations[$tableName] : [],
                 ]));
             }
-            
+
             if (isset($relations[$tableName]) && !$isTree) {
                 if ($this->expandable) {
                     $files[] = new CodeFile("$viewPath/_detail.php", $this->render("views/_detail.php", [
@@ -403,7 +409,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                                 'relations' => isset($relations[$tableName]) ? $relations[$tableName][$name] : [],
                             ]));
                         }
-                    }else if(isset($rel[self::REL_IS_MASTER]) && !$rel[self::REL_IS_MASTER] && !in_array($name, $this->skippedRelations)){
+                    } else if (isset($rel[self::REL_IS_MASTER]) && !$rel[self::REL_IS_MASTER] && !in_array($name, $this->skippedRelations)) {
                         $files[] = new CodeFile("$viewPath/_form{$rel[self::REL_CLASS]}.php", $this->render("views/_formrefone.php", [
                             'relName' => $name,
                             'relations' => isset($relations[$tableName]) ? $relations[$tableName][$name] : [],
@@ -471,7 +477,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
             }
         }
         /* @var $class ActiveRecord */
-//        $class = $this->modelClass;
+        //        $class = $this->modelClass;
         $pk = empty($this->tableSchema->primaryKey) ? $this->tableSchema->getColumnNames()[0] : $this->tableSchema->primaryKey[0];
 
         return $pk;
@@ -506,7 +512,6 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                             $fk[$relations[5]] = $relations;
                             $fk[$relations[5]][] = $name;
                         }
-
                     }
                 }
             }
@@ -538,15 +543,15 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
         }
         $column = $tableSchema->columns[$attribute];
         $format = $this->generateColumnFormat($column);
-//        if($column->autoIncrement){
-//            return "";
-//        } else
+        //        if($column->autoIncrement){
+        //            return "";
+        //        } else
         if (array_key_exists($attribute, $fk)) {
             $rel = $fk[$attribute];
             $labelCol = $this->getNameAttributeFK($rel[3]);
-//            $humanize = Inflector::humanize($rel[3]);
-//            $id = 'grid-' . Inflector::camel2id(StringHelper::basename($this->searchModelClass)) . '-' . $attribute;
-//            $modelRel = $rel[2] ? lcfirst(Inflector::pluralize($rel[1])) : lcfirst($rel[1]);
+            //            $humanize = Inflector::humanize($rel[3]);
+            //            $id = 'grid-' . Inflector::camel2id(StringHelper::basename($this->searchModelClass)) . '-' . $attribute;
+            //            $modelRel = $rel[2] ? lcfirst(Inflector::pluralize($rel[1])) : lcfirst($rel[1]);
             $output = "[
             'attribute' => '$rel[7].$labelCol',
             'label' => " . $this->generateString(ucwords(Inflector::humanize($rel[5]))) . ",
@@ -590,7 +595,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                 return "";
             }
             $labelCol = $this->getNameAttributeFK($rel[3]);
-//            $modelRel = $rel[2] ? lcfirst(Inflector::pluralize($rel[1])) : lcfirst($rel[1]);
+            //            $modelRel = $rel[2] ? lcfirst(Inflector::pluralize($rel[1])) : lcfirst($rel[1]);
             $output = "[
                 'attribute' => '$rel[7].$labelCol',
                 'label' => " . $this->generateString(ucwords(Inflector::humanize($rel[5]))) . "
@@ -616,7 +621,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
         if (in_array($attribute, $this->hiddenColumns)) {
             return "['attribute' => '$attribute', 'visible' => false],\n";
         }
-//        $humanize = Inflector::humanize($attribute, true);
+        //        $humanize = Inflector::humanize($attribute, true);
         if ($tableSchema === false || !isset($tableSchema->columns[$attribute])) {
             if (preg_match('/^(password|pass|passwd|passcode)$/i', $attribute)) {
                 return "";
@@ -626,15 +631,15 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
         }
         $column = $tableSchema->columns[$attribute];
         $format = $this->generateColumnFormat($column);
-//        if($column->autoIncrement){
-//            return "";
-//        } else
+        //        if($column->autoIncrement){
+        //            return "";
+        //        } else
         if (array_key_exists($attribute, $fk) && $attribute) {
             $rel = $fk[$attribute];
             $labelCol = $this->getNameAttributeFK($rel[3]);
             $humanize = Inflector::humanize($rel[3]);
             $id = 'grid-' . Inflector::camel2id(StringHelper::basename($this->searchModelClass)) . '-' . $attribute;
-//            $modelRel = $rel[2] ? lcfirst(Inflector::pluralize($rel[1])) : lcfirst($rel[1]);
+            //            $modelRel = $rel[2] ? lcfirst(Inflector::pluralize($rel[1])) : lcfirst($rel[1]);
             $output = "[
                 'attribute' => '$attribute',
                 'label' => " . $this->generateString(ucwords(Inflector::humanize($rel[5]))) . ",
@@ -735,7 +740,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
             $rel = $fk[$column->name];
             $labelCol = $this->getNameAttributeFK($rel[self::REL_TABLE]);
             $humanize = Inflector::humanize($rel[self::REL_TABLE]);
-//            $pk = empty($this->tableSchema->primaryKey) ? $this->tableSchema->getColumnNames()[0] : $this->tableSchema->primaryKey[0];
+            //            $pk = empty($this->tableSchema->primaryKey) ? $this->tableSchema->getColumnNames()[0] : $this->tableSchema->primaryKey[0];
             $fkClassFQ = "\\" . $this->nsModel . "\\" . $rel[self::REL_CLASS];
             $output = "'$attribute' => [
             'label' => '$humanize',
@@ -781,12 +786,12 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
      */
     public function generateActiveField($attribute, $fk, $tableSchema = null, $relations = null, $isTree = false)
     {
-        if ($isTree){
+        if ($isTree) {
             $model = "\$node";
-        } else if (is_null($relations)){
+        } else if (is_null($relations)) {
             $model = "\$model";
-        }else{
-            $model = '$'.$relations[self::REL_CLASS];
+        } else {
+            $model = '$' . $relations[self::REL_CLASS];
         }
 
         if (is_null($tableSchema)) {
@@ -850,7 +855,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
             $rel = $fk[$column->name];
             $labelCol = $this->getNameAttributeFK($rel[3]);
             $humanize = Inflector::humanize($rel[3]);
-//            $pk = empty($this->tableSchema->primaryKey) ? $this->tableSchema->getColumnNames()[0] : $this->tableSchema->primaryKey[0];
+            //            $pk = empty($this->tableSchema->primaryKey) ? $this->tableSchema->getColumnNames()[0] : $this->tableSchema->primaryKey[0];
             $fkClassFQ = "\\" . $this->nsModel . "\\" . $rel[1];
             $output = "\$form->field($model, '$attribute')->widget(\\kartik\\widgets\\Select2::classname(), [
         'data' => \\yii\\helpers\\ArrayHelper::map($fkClassFQ::find()->orderBy('$rel[4]')->asArray()->all(), '$rel[4]', '$labelCol'),
@@ -872,7 +877,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
                     $dropDownOptions[$enumValue] = Inflector::humanize($enumValue);
                 }
                 return "\$form->field($model, '$attribute')->dropDownList("
-                . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)) . ", ['prompt' => ''])";
+                    . preg_replace("/\n\s*/", ' ', VarDumper::export($dropDownOptions)) . ", ['prompt' => ''])";
             } elseif ($column->phpType !== 'string' || $column->size === null) {
                 return "\$form->field($model, '$attribute')->$input(['placeholder' => '$placeholder'])";
             } else {
@@ -976,14 +981,15 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
      * Generates validation rules for the search model.
      * @return array the generated validation rules
      */
-    public function generateSearchRules() {
+    public function generateSearchRules()
+    {
         if (($table = $this->getTableSchema()) === false) {
             return ["[['" . implode("', '", $this->getColumnNames()) . "'], 'safe']"];
         }
         $types = [];
         foreach ($table->columns as $column) {
-		switch ($column->type) {
-		case Schema::TYPE_TINYINT:
+            switch ($column->type) {
+                case Schema::TYPE_TINYINT:
                 case Schema::TYPE_SMALLINT:
                 case Schema::TYPE_INTEGER:
                 case Schema::TYPE_BIGINT:
@@ -1020,7 +1026,8 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
      * Generates the attribute labels for the search model.
      * @return array the generated attribute labels (name => label)
      */
-    public function generateSearchLabels() {
+    public function generateSearchLabels()
+    {
         /* @var $model Model */
         $model = new $this->modelClass();
         $attributeLabels = $model->attributeLabels();
@@ -1047,7 +1054,8 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
     /**
      * @return array searchable attributes
      */
-    public function getSearchAttributes() {
+    public function getSearchAttributes()
+    {
         return $this->getColumnNames();
     }
 
@@ -1055,7 +1063,8 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
      * Generates search conditions
      * @return array
      */
-    public function generateSearchConditions() {
+    public function generateSearchConditions()
+    {
         $columns = [];
         if (($table = $this->getTableSchema()) === false) {
             $class = $this->modelClass;
@@ -1073,7 +1082,7 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
         $likeConditions = [];
         $hashConditions = [];
         foreach ($columns as $column => $type) {
-		switch ($type) {
+            switch ($type) {
                 case Schema::TYPE_TINYINT:
                 case Schema::TYPE_SMALLINT:
                 case Schema::TYPE_INTEGER:
@@ -1107,5 +1116,4 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
 
         return $conditions;
     }
-
 }
