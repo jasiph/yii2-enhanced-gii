@@ -982,7 +982,8 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
         }
         $types = [];
         foreach ($table->columns as $column) {
-            switch ($column->type) {
+		switch ($column->type) {
+		case Schema::TYPE_TINYINT:
                 case Schema::TYPE_SMALLINT:
                 case Schema::TYPE_INTEGER:
                 case Schema::TYPE_BIGINT:
@@ -1072,7 +1073,8 @@ class Generator extends \mootensai\enhancedgii\BaseGenerator
         $likeConditions = [];
         $hashConditions = [];
         foreach ($columns as $column => $type) {
-            switch ($type) {
+		switch ($type) {
+                case Schema::TYPE_TINYINT:
                 case Schema::TYPE_SMALLINT:
                 case Schema::TYPE_INTEGER:
                 case Schema::TYPE_BIGINT:
